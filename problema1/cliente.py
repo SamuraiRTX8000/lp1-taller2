@@ -7,10 +7,12 @@ Objetivo: Crear un cliente TCP que se conecte a un servidor e intercambie mensaj
 import socket
 
 # TODO: Crear un socket TCP/IP
+cliente_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # AF_INET: socket de familia IPv4
 # SOCK_STREAM: socket de tipo TCP (orientado a conexión)
 
-# TODO: Conectar el socket al servidor en la dirección y puerto especificados
+
+cliente_socket.connect(("localhost", 8000))
 
 # TODO: Enviar datos al servidor (convertidos a bytes)
 # sendall() asegura que todos los datos sean enviados
