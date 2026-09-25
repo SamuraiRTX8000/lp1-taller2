@@ -6,17 +6,22 @@ Objetivo: Crear un servidor TCP que acepte una conexión y intercambie mensajes 
 
 import socket
 
-# TODO: Definir la dirección y puerto del servidor
 
-# TODO: Crear un socket TCP/IP
+direccion_servidor = ("localhost", 8000)
+
+
+
+servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 # AF_INET: socket de familia IPv4
 # SOCK_STREAM: socket de tipo TCP (orientado a conexión)
 
-# TODO: Enlazar el socket a la dirección y puerto especificados
 
-# TODO: Poner el socket en modo escucha
+servidor.bind(direccion_servidor)
+
+
 # El parámetro define el número máximo de conexiones en cola
-
+servidor.listen(1)
 print("Servidor a la espera de conexiones ...")
 
 # TODO: Aceptar una conexión entrante
