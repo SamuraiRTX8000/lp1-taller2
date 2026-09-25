@@ -24,10 +24,11 @@ servidor.bind(direccion_servidor)
 servidor.listen(1)
 print("Servidor a la espera de conexiones ...")
 
-# TODO: Aceptar una conexión entrante
+
 # accept() bloquea hasta que llega una conexión
 # conn: nuevo socket para comunicarse con el cliente
 # addr: dirección y puerto del cliente
+conn, addr = servidor.accept()
 
 print(f"Conexión realizada por {addr}")
 
