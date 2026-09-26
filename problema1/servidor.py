@@ -32,15 +32,16 @@ conn, addr = servidor.accept()
 
 print(f"Conexión realizada por {addr}")
 
-# TODO: Recibir datos del cliente (hasta 1024 bytes)
+
 mensaje = conn.recv(1024)
 print(f"Mensaje del cliente: {mensaje.decode()}")
-mensaje = input("Ingrese un mensaje para enviar al cliente: ")
-mensaje = mensaje.encode()
+Respuesta = input("Ingrese un mensaje para enviar al cliente: ")
+Respuesta = Respuesta.encode()
+
+conn.sendall(Respuesta)
 
  
-# TODO: Enviar respuesta al cliente (convertida a bytes)
+
 # sendall() asegura que todos los datos sean enviados
 
-# TODO: Cerrar la conexión con el cliente
-
+conn.close()
