@@ -6,16 +6,19 @@ Objetivo: Crear un servidor TCP que devuelva exactamente lo que recibe del clien
 
 import socket
 
-# TODO: Definir la dirección y puerto del servidor
 
-# TODO: Crear un socket TCP/IP
+direccion = ("Localhost", 8000)
+
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # AF_INET: socket de familia IPv4
 # SOCK_STREAM: socket de tipo TCP (orientado a conexión)
 
-# TODO: Enlazar el socket a la dirección y puerto especificados
+server_socket.bind(direccion)
 
-# TODO: Poner el socket en modo escucha
+
 # El parámetro define el número máximo de conexiones en cola
+server_socket.listen(1)
 
 # Bucle infinito para manejar múltiples conexiones (una a la vez)
 while True:
