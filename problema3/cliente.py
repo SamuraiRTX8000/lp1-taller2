@@ -13,7 +13,8 @@ def receive_messages():
     de forma continua sin bloquear el hilo principal.
     """
     while True:
-        # TODO: Recibir mensajes del servidor (hasta 1024 bytes) y decodificarlos
+        
+        mesage = servidor.recv(1024).decode()
 
         # Imprimir el mensaje recibido
         print(message)
@@ -21,16 +22,17 @@ def receive_messages():
 # Solicitar nombre de usuario al cliente
 client_name = input("Cuál es tu nombre? ")
 address = ("Localhost", 8000)
-# TODO: Crear un socket TCP/IP
+
 servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # AF_INET: socket de familia IPv4
 # SOCK_STREAM: socket de tipo TCP (orientado a conexión)
 
 
-# TODO: Conectar el socket al servidor en la dirección y puerto especificados
+
 servidor.connect(address)
 
 # TODO: Enviar el nombre del cliente al servidor (codificado a bytes)
+servidor.sendall(client_name.encode())
 
 # Crear y iniciar un hilo para recibir mensajes del servidor
 # target: función que se ejecutará en el hilo
