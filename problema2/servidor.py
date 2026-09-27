@@ -25,7 +25,7 @@ while True:
 
     print("Servidor a la espera de conexiones ...")
     
-    # TODO: Aceptar una conexión entrante
+    
     # accept() bloquea hasta que llega una conexión
     # conn: nuevo socket para comunicarse con el cliente
     # addr: dirección y puerto del cliente
@@ -33,7 +33,7 @@ while True:
     
     print(f"Conexión realizada por {addr}")
 
-    # TODO: Recibir datos del cliente (hasta 1024 bytes)
+
     data = conn.recv(1024)
     
     # Si no se reciben datos, salir del bucle
@@ -44,8 +44,9 @@ while True:
     #no se codifica por que el mensaje ya esta codificado en bytes
     print("Datos recibidos:", data)
     
-    # TODO: Enviar los mismos datos de vuelta al cliente (echo)
+    
     conn.sendall(data)
     
-    # TODO: Cerrar la conexión con el cliente actual
+    
+    conn.close()
 
