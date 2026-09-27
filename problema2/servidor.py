@@ -10,15 +10,15 @@ import socket
 direccion = ("Localhost", 8000)
 
 
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # AF_INET: socket de familia IPv4
 # SOCK_STREAM: socket de tipo TCP (orientado a conexión)
 
-server_socket.bind(direccion)
+server.bind(direccion)
 
 
 # El parámetro define el número máximo de conexiones en cola
-server_socket.listen(1)
+server.listen(3)
 
 # Bucle infinito para manejar múltiples conexiones (una a la vez)
 while True:
@@ -29,19 +29,23 @@ while True:
     # accept() bloquea hasta que llega una conexión
     # conn: nuevo socket para comunicarse con el cliente
     # addr: dirección y puerto del cliente
+    conn, addr = server.accept()
     
     print(f"Conexión realizada por {addr}")
 
     # TODO: Recibir datos del cliente (hasta 1024 bytes)
+    data = conn.recv(1024)
     
     # Si no se reciben datos, salir del bucle
     if not data:
         break
 
     # Mostrar los datos recibidos (en formato bytes)
+    #no se codifica por que el mensaje ya esta codificado en bytes
     print("Datos recibidos:", data)
     
     # TODO: Enviar los mismos datos de vuelta al cliente (echo)
+    conn.sendall(data)
     
     # TODO: Cerrar la conexión con el cliente actual
 
