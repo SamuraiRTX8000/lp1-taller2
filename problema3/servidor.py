@@ -64,10 +64,10 @@ def broadcast(message, sender_socket):
 # SOCK_STREAM: socket de tipo TCP (orientado a conexión)
 servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# TODO: Enlazar el socket a la dirección y puerto especificados
+
 servidor.bind(address)
 
-# TODO: Poner el socket en modo escucha
+
 # El parámetro define el número máximo de conexiones en cola
 servidor.listen(5)
 
@@ -75,15 +75,18 @@ print("Servidor a la espera de conexiones ...")
 
 # Bucle principal para aceptar conexiones entrantes
 while True:
-    # TODO: Aceptar una conexión entrante
+    
+    client,addr = servidor.accept()
     # client: nuevo socket para comunicarse con el cliente
     # addr: dirección y puerto del cliente
     
     print(f"Conexión realizada por {addr}")
     
     # TODO: Recibir el nombre del cliente (hasta 1024 bytes) y decodificarlo
+    name = client.recv(1024).decode()
     
     # TODO: Agregar el socket del cliente a la lista de clientes conectados
+    clients.append(client)
     
     # Enviar mensaje de confirmación de conexión al cliente
     client.send("ya estás conectado!".encode())
