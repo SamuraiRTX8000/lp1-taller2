@@ -7,7 +7,7 @@ Objetivo: Crear un servidor de chat que maneje múltiples clientes simultáneame
 import socket
 import threading
 
-# TODO: Definir la dirección y puerto del servidor
+
 address = ("Localhost", 8000)
 
 
@@ -82,10 +82,10 @@ while True:
     
     print(f"Conexión realizada por {addr}")
     
-    # TODO: Recibir el nombre del cliente (hasta 1024 bytes) y decodificarlo
+    
     name = client.recv(1024).decode()
     
-    # TODO: Agregar el socket del cliente a la lista de clientes conectados
+    
     clients.append(client)
     
     # Enviar mensaje de confirmación de conexión al cliente
