@@ -24,10 +24,11 @@ cliente_socket.connect((direccion))
 # Mostrar mensaje que se va a enviar
 print(f"Mensaje '{message}' enviado.")
 
-# TODO: Codificar el mensaje a bytes y enviarlo al servidor
+#
 # sendall() asegura que todos los datos sean enviados
+cliente_socket.sendall(message.encode())
 
-# TODO: Recibir datos del servidor (hasta 1024 bytes)
+data = cliente_socket.recv(1024)
 
 # Decodificar e imprimir los datos recibidos
 print("Mensaje recibido: ", data.decode())
