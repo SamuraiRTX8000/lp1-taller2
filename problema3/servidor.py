@@ -8,6 +8,8 @@ import socket
 import threading
 
 # TODO: Definir la dirección y puerto del servidor
+address = ("Localhost", 8000)
+
 
 # Lista para mantener todos los sockets de clientes conectados
 clients = []
@@ -23,6 +25,7 @@ def handle_client(client_socket, client_name):
     while True:
         try:
             # TODO: Recibir datos del cliente (hasta 1024 bytes)
+
             
             # Si no se reciben datos, el cliente se desconectó
             if not data:
@@ -56,14 +59,17 @@ def broadcast(message, sender_socket):
             # TODO: Enviar el mensaje codificado a bytes a cada cliente
 
 
-# TODO: Crear un socket TCP/IP
+
 # AF_INET: socket de familia IPv4
 # SOCK_STREAM: socket de tipo TCP (orientado a conexión)
+servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # TODO: Enlazar el socket a la dirección y puerto especificados
+servidor.bind(address)
 
 # TODO: Poner el socket en modo escucha
 # El parámetro define el número máximo de conexiones en cola
+servidor.listen(5)
 
 print("Servidor a la espera de conexiones ...")
 
