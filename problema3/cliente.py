@@ -31,11 +31,18 @@ servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 servidor.connect(address)
 
-# TODO: Enviar el nombre del cliente al servidor (codificado a bytes)
+
 servidor.sendall(client_name.encode())
 
 # Crear y iniciar un hilo para recibir mensajes del servidor
 # target: función que se ejecutará en el hilo
+
+#receive_thread: es el nombre que va a recibir el hilo
+
+#thread = threading.Thread(es el objeto que permite crear un hilo)
+
+#target=receive_messages: es la función que se ejecutará en el hilo
+
 receive_thread = threading.Thread(target=receive_messages)
 receive_thread.start()
 
