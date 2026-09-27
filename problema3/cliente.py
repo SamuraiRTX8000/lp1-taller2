@@ -20,12 +20,15 @@ def receive_messages():
 
 # Solicitar nombre de usuario al cliente
 client_name = input("Cuál es tu nombre? ")
-
+address = ("Localhost", 8000)
 # TODO: Crear un socket TCP/IP
+servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # AF_INET: socket de familia IPv4
 # SOCK_STREAM: socket de tipo TCP (orientado a conexión)
 
+
 # TODO: Conectar el socket al servidor en la dirección y puerto especificados
+servidor.connect(address)
 
 # TODO: Enviar el nombre del cliente al servidor (codificado a bytes)
 
