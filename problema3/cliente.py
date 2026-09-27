@@ -14,7 +14,7 @@ def receive_messages():
     """
     while True:
         
-        mesage = servidor.recv(1024).decode()
+        message = servidor.recv(1024).decode()
 
         # Imprimir el mensaje recibido
         print(message)
@@ -42,6 +42,7 @@ receive_thread.start()
 # Bucle principal en el hilo principal para enviar mensajes al servidor
 while True:
     # Solicitar mensaje al usuario por consola
-    message = input("Mensaje: ")
-    # TODO: Codificar el mensaje a bytes y enviarlo al servidor
+    message_client = input("Mensaje: ")
+    servidor.sendall(message_client.encode())
+    #
 
