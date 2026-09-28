@@ -24,7 +24,7 @@ def handle_client(client_socket, client_name):
     """
     while True:
         try:
-            # TODO: Recibir datos del cliente (hasta 1024 bytes)
+            
             data = client_socket.recv(1024)
 
             
@@ -38,7 +38,9 @@ def handle_client(client_socket, client_name):
             # Imprimir el mensaje en el servidor
             print(message)
             
-            # TODO: Retransmitir el mensaje a todos los clientes excepto al remitente
+            
+            broadcast(message,client_socket)
+
 
             
         except ConnectionResetError:
@@ -57,7 +59,8 @@ def broadcast(message, sender_socket):
     """
     for client in clients:
         if client != sender_socket:
-            # TODO: Enviar el mensaje codificado a bytes a cada cliente
+            
+            client.sendall(message.encode())
 
 
 
