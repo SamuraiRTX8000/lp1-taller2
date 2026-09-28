@@ -25,6 +25,7 @@ def handle_client(client_socket, client_name):
     while True:
         try:
             # TODO: Recibir datos del cliente (hasta 1024 bytes)
+            data = client_socket.recv(1024)
 
             
             # Si no se reciben datos, el cliente se desconectó
@@ -83,7 +84,7 @@ while True:
     print(f"Conexión realizada por {addr}")
     
     
-    name = client.recv(1024).decode()
+    client_name = client.recv(1024).decode()
     
     
     clients.append(client)
@@ -94,9 +95,10 @@ while True:
     # Notificar a todos los clientes que un nuevo usuario se unió al chat
     broadcast(f"{client_name} se ha unido al Chat.", client)
     
-    # TODO: Crear e iniciar un hilo para manejar la comunicación con este cliente
+    
     # target: función que se ejecutará en el hilo
     # args: argumentos que se pasarán a la función
-    client_handler = # ...
+
+    client_handler = threading.Thread(target=handle_client, args=(client,client_name))
     client_handler.start()
 
