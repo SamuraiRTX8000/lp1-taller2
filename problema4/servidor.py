@@ -27,7 +27,7 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
     # que sirve archivos del directorio actual y genera listados de directorios
 
 
-servidor = http.server(address, MyRequestHandler)
+servidor = http.server.HTTPSserver(address, MyRequestHandler)
 
 
 # HTTPServer maneja las conexiones entrantes y delega el procesamiento

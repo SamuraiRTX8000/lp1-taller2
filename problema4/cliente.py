@@ -6,10 +6,14 @@ Objetivo: Crear un cliente HTTP que realice una petición GET a un servidor web 
 
 import http.client
 
+
 # TODO: Definir la dirección y puerto del servidor HTTP
+address = ("localhost", 8000)
 
 # TODO: Crear una conexión HTTP con el servidor
 # HTTPConnection permite establecer conexiones HTTP con servidores
+
+
 
 # TODO: Realizar una petición GET al path raíz ('/')
 # request() envía la petición HTTP al servidor
