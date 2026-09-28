@@ -57,6 +57,7 @@ def broadcast(message, sender_socket):
         message: Mensaje a enviar (string)
         sender_socket: Socket del cliente que envió el mensaje original
     """
+    #"este for recorre cada cliente y le va mandando los mensajes de otros"
     for client in clients:
         if client != sender_socket:
             
@@ -78,6 +79,7 @@ servidor.listen(5)
 print("Servidor a la espera de conexiones ...")
 
 # Bucle principal para aceptar conexiones entrantes
+
 while True:
     
     client,addr = servidor.accept()
@@ -101,6 +103,7 @@ while True:
     
     # target: función que se ejecutará en el hilo
     # args: argumentos que se pasarán a la función
+    
 
     client_handler = threading.Thread(target=handle_client, args=(client,client_name))
     client_handler.start()
