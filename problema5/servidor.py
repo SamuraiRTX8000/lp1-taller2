@@ -19,7 +19,7 @@ def handle_client(conn,addr):
         reader = conn.makefile("r", encoding="UTF-8")
         #readLine permite leer el contenido de reader hasta un salto de linea
         #strip borrra el vacio del princio y final
-        command = reader.readLine().strip()
+        command = reader.readline().strip()
 #si el comando recibido es list se crea una lista 
         if command == "LIST":
             files = [
@@ -59,8 +59,8 @@ def handle_client(conn,addr):
 server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 #permite reutilizar la conexion rapidamente si se llega a cerrar
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.blind(address)
-server.listen(1)
+server.bind(address)
+server.listen(5)
 print(f"Servidor escuchando en {address[0]}:{address[1]}")
 
 try:
@@ -74,3 +74,9 @@ try:
             daemon=True
         )
         thread.start()
+
+except KeyboardInterrupt:
+    print("\nCerrando servidor...")
+
+finally:
+    server.close()
