@@ -92,3 +92,43 @@ def board_to_string():
         f" {board[6]} | {board[7]} | {board[8]}\n"
     )
 
+# --------------------------------------------------
+# VALIDACIÓN DEL GANADOR
+# --------------------------------------------------
+
+def check_winner():
+
+    combinations = [
+
+        # Filas
+        (0, 1, 2),
+        (3, 4, 5),
+        (6, 7, 8),
+
+        # Columnas
+        (0, 3, 6),
+        (1, 4, 7),
+        (2, 5, 8),
+
+        # Diagonales
+        (0, 4, 8),
+        (2, 4, 6)
+    ]
+
+    for a, b, c in combinations:
+
+        if (
+            board[a] != " "
+            and board[a] == board[b]
+            and board[b] == board[c]
+        ):
+            return board[a]
+
+    # Si no quedan casillas libres,
+    # es empate.
+    if " " not in board:
+        return "DRAW"
+
+    return None
+
+
