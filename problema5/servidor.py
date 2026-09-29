@@ -57,6 +57,20 @@ def handle_client(conn,addr):
 
 
 server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+#permite reutilizar la conexion rapidamente si se llega a cerrar
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.blind(address)
 server.listen(1)
-conn, addr = server.accept
+print(f"Servidor escuchando en {address[0]}:{address[1]}")
+
+try:
+    while True:
+        #acepta clientes
+        conn, addr = server.accept()
+#crea los hilos
+        thread = threading.Thread(
+            target=handle_client,
+            args=(conn, addr),
+            daemon=True
+        )
+        thread.start()
