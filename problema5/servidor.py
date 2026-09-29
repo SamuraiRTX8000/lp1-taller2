@@ -103,6 +103,44 @@ def handle_upload(conn, filename, size, expected_hash):
     except Exception:
         temp_path.unlink(missing_ok=True)
         raise
+
+#funcion para descargar los archivos
+def handle_download(conn, filename):
+    path = safe_path(filename)
+# si no hay archivo  lo  notifica
+    if not path.is_file():
+        conn.sendall(b"ERROR: archivo no encontrado\n")
+        return
+#
+    size = path.stat().st_size
+    digest = hashlib.sha256()
+
+    # Primera pasada: calcular el checksum por bloques
+    with open(path, "rb") as file:
+        while True:
+            chunk = file.read(BUFFER_SIZE)
+
+            if not chunk:
+                break
+
+            digest.update(chunk)
+
+    checksum = digest.hexdigest()
+
+    # Enviar cabecera antes de los bytes
+    header = f"OK {size} {checksum}\n"
+    conn.sendall(header.encode("utf-8"))
+
+    # Segunda pasada: enviar el archivo por bloques
+    with open(path, "rb") as file:
+        while True:
+            chunk = file.read(BUFFER_SIZE)
+
+            if not chunk:
+                break
+
+            conn.sendall(chunk)
+
 #-----reconstruccion--------------------
 
 
