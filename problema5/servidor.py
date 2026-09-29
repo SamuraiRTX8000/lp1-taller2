@@ -31,12 +31,24 @@ def handle_client(conn,addr):
                 if path.is_file()
             ]
             conn.sendall(b"OK\n")
-
+            #envia la lista
             for filename in files:
                 conn.sendall(f"{filename}\n".encode("utf-8"))
 
+            #le dice alsercer que ya termino el comando
             conn.sendall(b".\n")
-            
+# comandos desconocidos e informa que no existen
+        else:
+            conn.sendall(b"ERROR: comando desconocido\n")
+#reconoce un error y lo captura y reporta
+    except (ConnectionError, OSError) as error:
+        print(f"Error con {addr}: {error}")
+
+    finally:
+        conn.close()
+        print(f"Cliente desconectado: {addr}")
+
+        
 
 
 
