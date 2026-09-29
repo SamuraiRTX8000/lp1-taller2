@@ -11,8 +11,11 @@ STORAGE= Path("archivos")
 #crea el archivo y confirma de que exista y evita errores
 STORAGE.mkdir(exist_ok=True)
 #----------Reforma para recibir mensajes--------
+
+
 def read_line(conn):
     """Lee una línea de texto terminada en \\n."""
+    #aqui se reconstruye el mensaje
     data = bytearray()
 
     while True:
@@ -22,11 +25,29 @@ def read_line(conn):
             raise ConnectionError("Conexión cerrada")
 
         if byte == b"\n":
+            #se pasa a string
             return data.decode("utf-8")
 
         data.extend(byte)
 
-#-----reconstruccion
+def safe_path(filename):
+    #evita nombres problematicos como . y .. por el sistema operativo
+    #nombres vacios
+    """Evita nombres que intenten salir de STORAGE."""
+    if not filename or filename in (".", ".."):
+        raise ValueError("Nombre de archivo no válido")
+# EVITAMOS QUE EL CLIENTE MANDE RUTAS SOLO PERMITE  NOMBRES
+    if Path(filename).name != filename:
+        raise ValueError("Ruta no permitida")
+#crea la ruta y la vuelve canonica
+    path = (STORAGE / filename).resolve()
+
+    if path.parent != STORAGE.resolve():
+        raise ValueError("Ruta no permitida")
+
+    return path
+
+#-----reconstruccion--------------------
 def handle_client(conn,addr):
     print(f"Cliente conectado: {addr}")
     try:
