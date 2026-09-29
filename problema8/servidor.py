@@ -388,6 +388,78 @@ def handle_player(conn, address, symbol):
         f"Jugador {symbol} desconectado: {address}"
     )
 
+# --------------------------------------------------
+# MANEJO DE ESPECTADORES
+# --------------------------------------------------
+
+def handle_spectator(conn, address):
+
+    with lock:
+
+        spectators.append(conn)
+
+    send_message(
+        conn,
+        "Modo espectador activado."
+    )
+
+    send_message(
+        conn,
+        board_to_string()
+    )
+
+    try:
+
+        while True:
+
+            data = conn.recv(1024)
+
+            if not data:
+                break
+
+            command = data.decode(
+                "utf-8",
+                errors="replace"
+            ).strip()
+
+            if command == "BOARD":
+
+                send_message(
+                    conn,
+                    board_to_string()
+                )
+
+            elif command == "QUIT":
+
+                break
+
+            else:
+
+                send_message(
+                    conn,
+                    "Como espectador solo puedes usar BOARD o QUIT."
+                )
+
+    except (
+        ConnectionError,
+        OSError
+    ):
+        pass
+
+    finally:
+
+        with lock:
+
+            if conn in spectators:
+                spectators.remove(conn)
+
+        conn.close()
+
+        print(
+            f"Espectador desconectado: {address}"
+        )
+
+
 
 
 
