@@ -11,7 +11,16 @@ STORANGE.mkdir(exist_ok=True)
 
 def handle_client(conn,addr):
     print(f"Cliente conectado: {addr}")
-    
+    try:
+#con conn.makefile("r", encoding="UTF-8") permite ponerle una interfaz a los datos del socket
+#algo parecido a crear un archivo desechable que esta ligado al socket directamente
+#"r" formato para la lectura 
+#y el encoding="UTF-8") permite de pasar de bytes a string
+        reader = conn.makefile("r", encoding="UTF-8")
+        command = reader.readLine().strip()
+
+
+
 
 
 
