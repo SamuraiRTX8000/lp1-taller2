@@ -57,6 +57,93 @@ def broadcast(room, message, exclude=None):
         except OSError:
             pass
 
+#definicion de funciones para comandos como crear rooms y entrar a  una room
+# ---------- Comandos ----------
+
+def create_room(conn, username, room):
+    with lock:
+        if room in rooms:
+            send_message(conn, "ERROR: la sala ya existe")
+            return
+
+        rooms[room] = set()
+        save_rooms()
+
+    send_message(conn, f"OK: sala '{room}' creada")
+    broadcast(room, f"[Servidor] Se creó la sala {room}")
+
+
+def join_room(conn, username, room):
+    with lock:
+        if room not in rooms:
+            send_message(conn, "ERROR: la sala no existe")
+            return
+
+        old_room = users[username]["room"]
+
+        if old_room == room:
+            send_message(conn, "Ya estás en esa sala")
+            return
+
+        if old_room is not None:
+            rooms[old_room].discard(username)
+
+        rooms[room].add(username)
+        users[username]["room"] = room
+
+    if old_room is not None:
+        broadcast(old_room, f"[Servidor] {username} salió de la sala")
+
+    send_message(conn, f"OK: entraste a '{room}'")
+    broadcast(room, f"[Servidor] {username} entró a la sala")
+
+
+def leave_room(conn, username):
+    with lock:
+        room = users[username]["room"]
+
+        if room is None:
+            send_message(conn, "ERROR: no estás en ninguna sala")
+            return
+
+        rooms[room].discard(username)
+        users[username]["room"] = None
+
+    send_message(conn, f"OK: saliste de '{room}'")
+    broadcast(room, f"[Servidor] {username} salió de la sala")
+
+
+def list_rooms(conn):
+    with lock:
+        names = sorted(rooms.keys())
+
+    send_message(conn, "Salas disponibles:")
+
+    for name in names:
+        send_message(conn, f"- {name}")
+
+    send_message(conn, ".")
+
+
+def list_users(conn, username):
+    with lock:
+        room = users[username]["room"]
+
+        if room is None:
+            send_message(conn, "ERROR: primero entra a una sala")
+            return
+
+        members = sorted(rooms[room])
+
+    send_message(conn, f"Usuarios en '{room}':")
+
+    for member in members:
+        send_message(conn, f"- {member}")
+
+    send_message(conn, ".")
+
+
+
 
 
 
