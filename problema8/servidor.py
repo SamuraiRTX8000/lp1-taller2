@@ -366,6 +366,28 @@ def handle_player(conn, address, symbol):
             OSError
         ):
             break
+ # --------------------------------------------------
+    # JUGADOR DESCONECTADO
+    # --------------------------------------------------
+
+    with lock:
+
+        if symbol in players:
+
+            del players[symbol]
+
+        game_started = False
+
+    broadcast(
+        f"El jugador {symbol} se ha desconectado."
+    )
+
+    conn.close()
+
+    print(
+        f"Jugador {symbol} desconectado: {address}"
+    )
+
 
 
 
