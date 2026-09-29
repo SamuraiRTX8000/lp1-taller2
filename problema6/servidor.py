@@ -11,7 +11,7 @@ rooms = {}
 users = {}
 lock = threading.Lock()
 
-
+#crea un archivo json q ue me permite guardar las salas creadas y mantenerlas despues de cerrar el sever
 # ---------- Persistencia ----------
 
 def save_rooms():
@@ -22,4 +22,19 @@ def save_rooms():
             indent=4,
             ensure_ascii=False
         )
+
+def load_rooms():
+    if ROOMS_FILE.exists():
+        with ROOMS_FILE.open("r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        for room in data.get("rooms", []):
+            rooms[room] = set()
+
+    if "general" not in rooms:
+        rooms["general"] = set()
+
+    save_rooms()
+
+
 
