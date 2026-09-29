@@ -37,3 +37,40 @@ game_started = False
 
 # Lock para proteger el estado compartido
 lock = threading.Lock()
+
+# --------------------------------------------------
+# ENVÍO DE MENSAJES
+# --------------------------------------------------
+
+def send_message(conn, message):
+    """
+    Envía un mensaje al cliente.
+    """
+    try:
+        conn.sendall((message + "\n").encode("utf-8"))
+    except (ConnectionError, OSError):
+        pass
+
+
+def broadcast(message):
+    """
+    Envía un mensaje a todos los jugadores
+    y espectadores.
+    """
+
+    with lock:
+
+        connections = []
+
+        # Agregamos jugadores
+        for conn, address in players.values():
+            connections.append(conn)
+
+        # Agregamos espectadores
+        connections.extend(spectators)
+
+    # Enviamos fuera del lock
+    # para no bloquear el estado del juego.
+    for conn in connections:
+        send_message(conn, message)
+
