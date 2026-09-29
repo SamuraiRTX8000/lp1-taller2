@@ -5,9 +5,9 @@ import threading
 #creacion del seerrvidor
 address = ("Localhost",8000)
 #Crea la ruta donde  se va a guardar los archivos
-STORANGE= Path("archivos")
+STORAGE= Path("archivos")
 #crea el archivo y confirma de que exista y evita errores
-STORANGE.mkdir(exist_ok=True)
+STORAGE.mkdir(exist_ok=True)
 
 def handle_client(conn,addr):
     print(f"Cliente conectado: {addr}")
@@ -17,7 +17,21 @@ def handle_client(conn,addr):
 #"r" formato para la lectura 
 #y el encoding="UTF-8") permite de pasar de bytes a string
         reader = conn.makefile("r", encoding="UTF-8")
+        #readLine permite leer el contenido de reader hasta un salto de linea
+        #strip borrra el vacio del princio y final
         command = reader.readLine().strip()
+#si el comando recibido es list se crea una lista 
+        if command == "LIST":
+            files = [
+                #indica que queremos guardar
+                path.name
+                #itera los archivos en storage
+                for path in STORAGE.iterdir()
+                #solo lo incluye si es un archivo
+                if path.is_file()
+            ]
+            conn.sendall(b"OK\n")
+
 
 
 
