@@ -130,5 +130,21 @@ def check_winner():
         return "DRAW"
 
     return None
+#
+ #REINICIAR PARTIDA
+# --------------------------------------------------
+
+def reset_game():
+
+    global board
+    global current_turn
+    global game_started
+
+    with lock:
+
+        board = [" "] * 9
+        current_turn = "X"
+        game_started = False
+
 
 
