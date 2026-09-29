@@ -4,11 +4,29 @@ import threading
 
 #creacion del seerrvidor
 address = ("Localhost",8000)
+
+BUFFER_SIZE = 4096
 #Crea la ruta donde  se va a guardar los archivos
 STORAGE= Path("archivos")
 #crea el archivo y confirma de que exista y evita errores
 STORAGE.mkdir(exist_ok=True)
+#----------Reforma para recibir mensajes--------
+def read_line(conn):
+    """Lee una línea de texto terminada en \\n."""
+    data = bytearray()
 
+    while True:
+        byte = conn.recv(1)
+
+        if not byte:
+            raise ConnectionError("Conexión cerrada")
+
+        if byte == b"\n":
+            return data.decode("utf-8")
+
+        data.extend(byte)
+
+#-----reconstruccion
 def handle_client(conn,addr):
     print(f"Cliente conectado: {addr}")
     try:
