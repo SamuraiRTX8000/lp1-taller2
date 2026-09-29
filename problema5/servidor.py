@@ -141,6 +141,56 @@ def handle_download(conn, filename):
 
             conn.sendall(chunk)
 
+def handle_client(conn, addr):
+    print(f"Cliente conectado: {addr}")
+
+    try:
+        command_line = read_line(conn)
+        parts = command_line.split()
+
+        if not parts:
+            conn.sendall(b"ERROR: comando vacio\n")
+            return
+
+        command = parts[0].upper()
+
+        if command == "LIST":
+            handle_list(conn)
+
+        elif command == "UPLOAD":
+            if len(parts) != 4:
+                conn.sendall(
+                    b"ERROR: formato UPLOAD nombre tamano checksum\n"
+                )
+                return
+
+            filename = parts[1]
+            size = int(parts[2])
+            checksum = parts[3]
+
+            if size < 0 or len(checksum) != 64:
+                conn.sendall(b"ERROR: datos no validos\n")
+                return
+
+            handle_upload(conn, filename, size, checksum)
+
+        elif command == "DOWNLOAD":
+            if len(parts) != 2:
+                conn.sendall(b"ERROR: formato DOWNLOAD nombre\n")
+                return
+
+            handle_download(conn, parts[1])
+
+        else:
+            conn.sendall(b"ERROR: comando desconocido\n")
+
+    except (ConnectionError, OSError, ValueError) as error:
+        print(f"Error con {addr}: {error}")
+
+    finally:
+        conn.close()
+        print(f"Cliente desconectado: {addr}")
+
 #-----reconstruccion--------------------
 
 
