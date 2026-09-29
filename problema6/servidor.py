@@ -112,7 +112,7 @@ def leave_room(conn, username):
     send_message(conn, f"OK: saliste de '{room}'")
     broadcast(room, f"[Servidor] {username} salió de la sala")
 
-
+#te dice que salas estan disponibles
 def list_rooms(conn):
     with lock:
         names = sorted(rooms.keys())
@@ -124,7 +124,7 @@ def list_rooms(conn):
 
     send_message(conn, ".")
 
-
+#te dice cuantos  usuaruis hay
 def list_users(conn, username):
     with lock:
         room = users[username]["room"]
@@ -141,6 +141,105 @@ def list_users(conn, username):
         send_message(conn, f"- {member}")
 
     send_message(conn, ".")
+
+def room_message(conn, username, message):
+    with lock:
+        room = users[username]["room"]
+
+    if room is None:
+        send_message(conn, "ERROR: primero entra a una sala")
+        return
+
+    broadcast(room, f"[{room}] {username}: {message}")
+
+
+def private_message(conn, username, target, message):
+    with lock:
+        recipient = users.get(target)
+
+        if recipient is None:
+            send_message(conn, "ERROR: usuario no conectado")
+            return
+
+        target_conn = recipient["conn"]
+
+    try:
+        send_message(
+            target_conn,
+            f"[Privado de {username}] {message}"
+        )
+        send_message(conn, f"[Privado para {target}] {message}")
+
+    except OSError:
+        send_message(conn, "ERROR: no se pudo enviar el mensaje")
+
+# permite al codigoreconocer comandos y ejecutarlos
+def handle_command(conn, username, line):
+    parts = line.strip().split(maxsplit=2)
+
+    if not parts:
+        return
+
+    command = parts[0].upper()
+
+    if command == "CREATE":
+        if len(parts) != 2:
+            send_message(conn, "Uso: CREATE nombre_sala")
+            return
+
+        create_room(conn, username, parts[1])
+
+    elif command == "JOIN":
+        if len(parts) != 2:
+            send_message(conn, "Uso: JOIN nombre_sala")
+            return
+
+        join_room(conn, username, parts[1])
+
+    elif command == "LEAVE":
+        leave_room(conn, username)
+
+    elif command == "ROOMS":
+        list_rooms(conn)
+
+    elif command == "USERS":
+        list_users(conn, username)
+
+    elif command == "MSG":
+        if len(parts) < 2:
+            send_message(conn, "Uso: MSG mensaje")
+            return
+
+        # split(maxsplit=2) conserva el resto del mensaje en parts[1]
+        room_message(conn, username, line.strip()[4:].strip())
+
+    elif command == "PRIVATE":
+        private_parts = line.strip().split(maxsplit=2)
+
+        if len(private_parts) != 3:
+            send_message(conn, "Uso: PRIVATE usuario mensaje")
+            return
+
+        _, target, message = private_parts
+        private_message(conn, username, target, message)
+
+    elif command == "HELP":
+        send_message(
+            conn,
+            "Comandos: CREATE sala, JOIN sala, LEAVE, "
+            "ROOMS, USERS, MSG mensaje, "
+            "PRIVATE usuario mensaje, HELP, QUIT"
+        )
+
+    elif command == "QUIT":
+        send_message(conn, "Adios")
+        return "QUIT"
+
+    else:
+        send_message(conn, "ERROR: comando desconocido")
+
+    return None
+
 
 
 
