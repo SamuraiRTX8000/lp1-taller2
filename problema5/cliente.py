@@ -1,6 +1,6 @@
 import socket
 
-address = ("localhost")
+address = ("localhost", 8000)
 
 with socket.create_connection(address) as client:
 
@@ -15,5 +15,27 @@ with socket.create_connection(address) as client:
 
     # Leer la primera línea de la respuesta
     status = reader.readline().strip()
-    
+
+    print("Estado:", status)
+
+    # Si el servidor respondió OK
+    if status == "OK":
+
+        print("Archivos disponibles:")
+
+        while True:
+
+            line = reader.readline()
+
+            if not line:
+                print("Conexión cerrada inesperadamente.")
+                break
+
+            filename = line.strip()
+
+            if filename == ".":
+                break
+
+            print("-", filename)
+
     
