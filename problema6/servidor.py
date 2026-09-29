@@ -307,6 +307,34 @@ def handle_client(conn, addr):
 
         conn.close()
 
+# ---------- Servidor principal ----------
+
+load_rooms()
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind(ADDRESS)
+server.listen()
+
+print(f"Servidor escuchando en {ADDRESS[0]}:{ADDRESS[1]}")
+
+try:
+    while True:
+        conn, addr = server.accept()
+
+        thread = threading.Thread(
+            target=handle_client,
+            args=(conn, addr),
+            daemon=True
+        )
+        thread.start()
+
+except KeyboardInterrupt:
+    print("\nCerrando servidor...")
+
+finally:
+    server.close()
+
 
 
 
