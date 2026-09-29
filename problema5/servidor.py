@@ -67,6 +67,8 @@ def handle_list(conn):
         #envia terminacion de comandos .\n(protocolo para terminar comando)
     conn.sendall(b".\n")
 
+
+#funcion que permite  la subida de archivos 
 def handle_upload(conn, filename, size, expected_hash):
     path = safe_path(filename)
     temp_path = path.with_name(path.name + ".part")
@@ -77,15 +79,18 @@ def handle_upload(conn, filename, size, expected_hash):
     try:
         with open(temp_path, "wb") as file:
             while received < size:
+                #calcula de cuanto debe recibir el paquete(chunk)
                 amount = min(BUFFER_SIZE, size - received)
+                #tamaño del paquete que recibe (amount)
                 chunk = conn.recv(amount)
 
                 if not chunk:
                     raise ConnectionError("Transferencia incompleta")
-
+            #arama el paquete entero juntando las partes recibidas
                 file.write(chunk)
                 digest.update(chunk)
                 received += len(chunk)
+
 
         if digest.hexdigest() != expected_hash:
             temp_path.unlink(missing_ok=True)
@@ -99,44 +104,7 @@ def handle_upload(conn, filename, size, expected_hash):
         temp_path.unlink(missing_ok=True)
         raise
 #-----reconstruccion--------------------
-def handle_client(conn,addr):
-    print(f"Cliente conectado: {addr}")
-    try:
-#con conn.makefile("r", encoding="UTF-8") permite ponerle una interfaz a los datos del socket
-#algo parecido a crear un archivo desechable que esta ligado al socket directamente
-#"r" formato para la lectura 
-#y el encoding="UTF-8") permite de pasar de bytes a string
-        reader = conn.makefile("r", encoding="UTF-8")
-        #readLine permite leer el contenido de reader hasta un salto de linea
-        #strip borrra el vacio del princio y final
-        command = reader.readline().strip()
-#si el comando recibido es list se crea una lista 
-        if command == "LIST":
-            files = [
-                #indica que queremos guardar
-                path.name
-                #itera los archivos en storage
-                for path in STORAGE.iterdir()
-                #solo lo incluye si es un archivo
-                if path.is_file()
-            ]
-            conn.sendall(b"OK\n")
-            #envia la lista
-            for filename in files:
-                conn.sendall(f"{filename}\n".encode("utf-8"))
 
-            #le dice alsercer que ya termino el comando
-            conn.sendall(b".\n")
-# comandos desconocidos e informa que no existen
-        else:
-            conn.sendall(b"ERROR: comando desconocido\n")
-#reconoce un error y lo captura y reporta
-    except (ConnectionError, OSError) as error:
-        print(f"Error con {addr}: {error}")
-
-    finally:
-        conn.close()
-        print(f"Cliente desconectado: {addr}")
 
         
 
