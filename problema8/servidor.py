@@ -219,7 +219,153 @@ def start_game():
             return True
 
     return False
+# --------------------------------------------------
+# MANEJO DE JUGADORES
+# --------------------------------------------------
 
+def handle_player(conn, address, symbol):
+
+    global players
+
+    send_message(
+        conn,
+        f"Has sido asignado como jugador {symbol}."
+    )
+
+    send_message(
+        conn,
+        "Las posiciones del tablero son:"
+    )
+
+    send_message(
+        conn,
+        "0 1 2 / 3 4 5 / 6 7 8"
+    )
+
+    while True:
+
+        try:
+
+            data = conn.recv(1024)
+
+            if not data:
+                break
+
+            command = data.decode(
+                "utf-8",
+                errors="replace"
+            ).strip()
+
+            # -----------------------------
+            # MOVIMIENTO
+            # -----------------------------
+
+            if command.startswith("MOVE"):
+
+                parts = command.split()
+
+                if len(parts) != 2:
+
+                    send_message(
+                        conn,
+                        "Uso: MOVE <posición>"
+                    )
+
+                    continue
+
+                try:
+
+                    position = int(parts[1])
+
+                except ValueError:
+
+                    send_message(
+                        conn,
+                        "La posición debe ser un número."
+                    )
+
+                    continue
+
+                valid, result = make_move(
+                    symbol,
+                    position
+                )
+
+                if not valid:
+
+                    send_message(
+                        conn,
+                        f"ERROR: {result}"
+                    )
+
+                    continue
+
+                # Informamos a todos
+                broadcast(
+                    f"MOVE {symbol} {position}"
+                )
+
+                broadcast(
+                    board_to_string()
+                )
+
+                # -----------------------------
+                # FIN DE PARTIDA
+                # -----------------------------
+
+                if result == "DRAW":
+
+                    broadcast(
+                        "RESULTADO: EMPATE"
+                    )
+
+                elif result in ("X", "O"):
+
+                    broadcast(
+                        f"RESULTADO: GANA {result}"
+                    )
+
+                else:
+
+                    # Informamos el siguiente turno
+                    with lock:
+                        turn = current_turn
+
+                    broadcast(
+                        f"TURNO: {turn}"
+                    )
+
+            # -----------------------------
+            # TABLERO
+            # -----------------------------
+
+            elif command == "BOARD":
+
+                send_message(
+                    conn,
+                    board_to_string()
+                )
+
+            # -----------------------------
+            # SALIR
+            # -----------------------------
+
+            elif command == "QUIT":
+
+                break
+
+            else:
+
+                send_message(
+                    conn,
+                    "Comando desconocido."
+                )
+
+        except (
+            ConnectionError,
+            OSError
+        ):
+            break
 
 
 
