@@ -36,5 +36,28 @@ def load_rooms():
 
     save_rooms()
 
+#funcion que permite enviar mensaje a una persona o a sala completa
+# ---------- Comunicación ----------
+#funciob que permite enviarle un mensaje a alguien especifico
+def send_message(conn, message):
+    conn.sendall((message + "\n").encode("utf-8"))
+#le envia el mensaje a todos
+
+def broadcast(room, message, exclude=None):
+    with lock:
+        connections = [
+            users[name]["conn"]
+            for name in rooms.get(room, set())
+            if name != exclude and name in users
+        ]
+
+    for conn in connections:
+        try:
+            send_message(conn, message)
+        except OSError:
+            pass
+
+
+
 
 
