@@ -46,6 +46,25 @@ def safe_path(filename):
         raise ValueError("Ruta no permitida")
 
     return path
+# funcion para el comando list
+def handle_list(conn):
+    #crea la lista de archivos a mostrar al cliente
+    files = [
+        #archivos que vamos a cuscar
+        path.name
+        #va iterando y agregando a la lista
+        for path in STORAGE.iterdir()
+        #solo lo incluye si son archivos
+        if path.is_file()
+    ]
+
+    #envia la confirmacion
+    conn.sendall(b"OK\n")
+    #envia la lista de archivos
+    for filename in files:
+        conn.sendall(f"{filename}\n".encode("utf-8"))
+        #envia terminacion de comandos .\n(protocolo para terminar comando)
+    conn.sendall(b".\n")
 
 #-----reconstruccion--------------------
 def handle_client(conn,addr):
