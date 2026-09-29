@@ -1,4 +1,4 @@
-```python
+
 import socket
 
 PROXY_ADDRESS = ("localhost", 8080)
@@ -42,4 +42,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
+
