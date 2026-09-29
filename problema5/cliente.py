@@ -98,4 +98,46 @@ def download():
             return
 
         print(f"Descarga completada: {path}")
+def list_files():
+    with socket.create_connection(ADDRESS) as client:
+        client.sendall(b"LIST\n")
+
+        status = read_line(client)
+        print("Estado:", status)
+
+        if status == "OK":
+            print("Archivos disponibles:")
+
+            while True:
+                line = read_line(client)
+
+                if line == ".":
+                    break
+
+                print("-", line)
+while True:
+    command = input("\nComando (LIST, UPLOAD, DOWNLOAD, EXIT): ")
+    command = command.strip().upper()
+
+    try:
+        if command == "LIST":
+            list_files()
+
+        elif command == "UPLOAD":
+            upload()
+
+        elif command == "DOWNLOAD":
+            download()
+
+        elif command == "EXIT":
+            print("Cliente cerrado.")
+            break
+
+        else:
+            print("Comando desconocido.")
+
+    except (ConnectionError, OSError, ValueError) as error:
+        print("Error:", error)
+
+
   
