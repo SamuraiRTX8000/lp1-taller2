@@ -244,12 +244,13 @@ def handle_command(conn, username, line):
 
 def handle_client(conn, addr):
     username = None
+    registered = False
+    reader = conn.makefile("r", encoding="utf-8")
 
     try:
-        #pide el nombre al cliente
         send_message(conn, "Escribe tu nombre de usuario:")
 
-        username = conn.recv(1024).decode("utf-8").strip()
+        username = reader.readline().strip()
 
         if not username or " " in username:
             send_message(conn, "ERROR: nombre no válido")
@@ -264,6 +265,7 @@ def handle_client(conn, addr):
                 "conn": conn,
                 "room": None
             }
+            registered = True
 
         send_message(conn, f"Bienvenido, {username}")
         send_message(conn, "Escribe HELP para ver los comandos")
@@ -271,40 +273,38 @@ def handle_client(conn, addr):
         print(f"{username} conectado desde {addr}")
 
         while True:
-            data = conn.recv(4096)
+            line = reader.readline()
 
-            if not data:
+            if not line:
                 break
 
-            # El cliente envía un comando por línea.
-            # Este servidor procesa los comandos recibidos.
-            text = data.decode("utf-8")
+            result = handle_command(conn, username, line)
 
-            for line in text.splitlines():
-                result = handle_command(conn, username, line)
-
-                if result == "QUIT":
-                    return
+            if result == "QUIT":
+                break
 
     except (ConnectionError, OSError, UnicodeDecodeError) as error:
         print(f"Error con {username}: {error}")
 
     finally:
-        if username is not None:
+        if registered:
             with lock:
-                if username in users:
-                    room = users[username]["room"]
+                room = users[username]["room"]
 
-                    if room is not None:
-                        rooms[room].discard(username)
+                if room is not None:
+                    rooms[room].discard(username)
 
-                    del users[username]
+                del users[username]
 
             if room is not None:
-                broadcast(room, f"[Servidor] {username} se desconectó")
+                broadcast(
+                    room,
+                    f"[Servidor] {username} se desconectó"
+                )
 
             print(f"{username} desconectado")
 
+        reader.close()
         conn.close()
 
 # ---------- Servidor principal ----------
