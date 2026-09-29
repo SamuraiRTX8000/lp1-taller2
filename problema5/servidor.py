@@ -1,6 +1,7 @@
 import socket
 from pathlib import Path
 import threading
+import hashlib
 
 #creacion del seerrvidor
 address = ("Localhost",8000)
@@ -66,6 +67,37 @@ def handle_list(conn):
         #envia terminacion de comandos .\n(protocolo para terminar comando)
     conn.sendall(b".\n")
 
+def handle_upload(conn, filename, size, expected_hash):
+    path = safe_path(filename)
+    temp_path = path.with_name(path.name + ".part")
+
+    received = 0
+    digest = hashlib.sha256()
+
+    try:
+        with open(temp_path, "wb") as file:
+            while received < size:
+                amount = min(BUFFER_SIZE, size - received)
+                chunk = conn.recv(amount)
+
+                if not chunk:
+                    raise ConnectionError("Transferencia incompleta")
+
+                file.write(chunk)
+                digest.update(chunk)
+                received += len(chunk)
+
+        if digest.hexdigest() != expected_hash:
+            temp_path.unlink(missing_ok=True)
+            conn.sendall(b"ERROR: checksum incorrecto\n")
+            return
+
+        temp_path.replace(path)
+        conn.sendall(b"OK\n")
+
+    except Exception:
+        temp_path.unlink(missing_ok=True)
+        raise
 #-----reconstruccion--------------------
 def handle_client(conn,addr):
     print(f"Cliente conectado: {addr}")
