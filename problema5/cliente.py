@@ -61,4 +61,41 @@ def upload():
         print("Servidor:", read_line(client))
 
 
-    
+def download():
+    filename = input("Nombre del archivo que quieres descargar: ")
+
+    with socket.create_connection(ADDRESS) as client:
+        client.sendall(f"DOWNLOAD {filename}\n".encode("utf-8"))
+
+        header = read_line(client)
+
+        if not header.startswith("OK "):
+            print("Servidor:", header)
+            return
+
+        _, size_text, expected_hash = header.split()
+        size = int(size_text)
+
+        path = Path(filename)
+        received = 0
+        digest = hashlib.sha256()
+
+        with open(path, "wb") as file:
+            while received < size:
+                amount = min(BUFFER_SIZE, size - received)
+                chunk = client.recv(amount)
+
+                if not chunk:
+                    raise ConnectionError("Descarga incompleta")
+
+                file.write(chunk)
+                digest.update(chunk)
+                received += len(chunk)
+
+        if digest.hexdigest() != expected_hash:
+            path.unlink(missing_ok=True)
+            print("Error: el checksum no coincide.")
+            return
+
+        print(f"Descarga completada: {path}")
+  
