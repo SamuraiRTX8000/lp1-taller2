@@ -32,6 +32,12 @@ def handle_client(conn,addr):
             ]
             conn.sendall(b"OK\n")
 
+            for filename in files:
+                conn.sendall(f"{filename}\n".encode("utf-8"))
+
+            conn.sendall(b".\n")
+            
+
 
 
 
