@@ -146,5 +146,80 @@ def reset_game():
         current_turn = "X"
         game_started = False
 
+# --------------------------------------------------
+# MOVIMIENTO
+# --------------------------------------------------
+
+def make_move(symbol, position):
+
+    global current_turn
+    global game_started
+
+    with lock:
+
+        # ¿La partida comenzó?
+        if not game_started:
+            return False, "La partida todavía no ha comenzado."
+
+        # ¿Es el turno correcto?
+        if symbol != current_turn:
+            return False, "No es tu turno."
+
+        # ¿La posición es válida?
+        if position < 0 or position > 8:
+            return False, "La posición debe estar entre 0 y 8."
+
+        # ¿La casilla está ocupada?
+        if board[position] != " ":
+            return False, "Esa casilla ya está ocupada."
+
+        # Realizamos el movimiento
+        board[position] = symbol
+
+        # Comprobamos ganador
+        result = check_winner()
+
+        if result:
+
+            game_started = False
+
+            if result == "DRAW":
+                return True, "DRAW"
+
+            return True, result
+
+        # Cambiamos el turno
+        if current_turn == "X":
+            current_turn = "O"
+        else:
+            current_turn = "X"
+
+        return True, "CONTINUE"
+
+
+# --------------------------------------------------
+# INICIAR PARTIDA
+# --------------------------------------------------
+
+def start_game():
+
+    global game_started
+    global current_turn
+
+    with lock:
+
+        if len(players) == 2:
+
+            board[:] = [" "] * 9
+
+            current_turn = "X"
+
+            game_started = True
+
+            return True
+
+    return False
+
+
 
 
