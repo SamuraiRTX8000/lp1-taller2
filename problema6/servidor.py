@@ -239,6 +239,74 @@ def handle_command(conn, username, line):
         send_message(conn, "ERROR: comando desconocido")
 
     return None
+#maneja a los clientes y peticiones
+# ---------- Cliente conectado ----------
+
+def handle_client(conn, addr):
+    username = None
+
+    try:
+        #pide el nombre al cliente
+        send_message(conn, "Escribe tu nombre de usuario:")
+
+        username = conn.recv(1024).decode("utf-8").strip()
+
+        if not username or " " in username:
+            send_message(conn, "ERROR: nombre no válido")
+            return
+
+        with lock:
+            if username in users:
+                send_message(conn, "ERROR: nombre ya conectado")
+                return
+
+            users[username] = {
+                "conn": conn,
+                "room": None
+            }
+
+        send_message(conn, f"Bienvenido, {username}")
+        send_message(conn, "Escribe HELP para ver los comandos")
+
+        print(f"{username} conectado desde {addr}")
+
+        while True:
+            data = conn.recv(4096)
+
+            if not data:
+                break
+
+            # El cliente envía un comando por línea.
+            # Este servidor procesa los comandos recibidos.
+            text = data.decode("utf-8")
+
+            for line in text.splitlines():
+                result = handle_command(conn, username, line)
+
+                if result == "QUIT":
+                    return
+
+    except (ConnectionError, OSError, UnicodeDecodeError) as error:
+        print(f"Error con {username}: {error}")
+
+    finally:
+        if username is not None:
+            with lock:
+                if username in users:
+                    room = users[username]["room"]
+
+                    if room is not None:
+                        rooms[room].discard(username)
+
+                    del users[username]
+
+            if room is not None:
+                broadcast(room, f"[Servidor] {username} se desconectó")
+
+            print(f"{username} desconectado")
+
+        conn.close()
+
 
 
 
