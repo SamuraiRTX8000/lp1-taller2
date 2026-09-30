@@ -2,8 +2,10 @@ import socket
 import threading
 
 tablero = [" "] * 9
+clientes = []
 jugadores = []
 turno = "X"
+
 lock = threading.Lock()
 
 
@@ -18,67 +20,105 @@ def mostrar_tablero():
 
 
 def enviar_a_todos(mensaje):
-    for jugador in jugadores:
-        jugador.sendall(mensaje.encode())
+    for cliente in clientes:
+        try:
+            cliente.sendall(mensaje.encode())
+        except:
+            pass
 
 
-def atender(cliente, simbolo):
+def atender_jugador(cliente, simbolo):
     global turno
 
-    cliente.sendall(f"Eres jugador {simbolo}\n".encode())
+    cliente.sendall(f"JUGADOR {simbolo}\n".encode())
 
     while True:
-        posicion = cliente.recv(1024).decode().strip()
+        try:
+            posicion = cliente.recv(1024).decode().strip()
 
-        with lock:
-            # Validar turno
-            if turno != simbolo:
-                cliente.sendall(b"No es tu turno\n")
-                continue
+            if not posicion:
+                break
 
-            # Validar movimiento
-            if not posicion.isdigit():
-                cliente.sendall(b"Escribe un numero del 1 al 9\n")
-                continue
+            with lock:
 
-            posicion = int(posicion) - 1
+                if turno != simbolo:
+                    cliente.sendall(b"No es tu turno\n")
+                    continue
 
-            if posicion < 0 or posicion > 8 or tablero[posicion] != " ":
-                cliente.sendall(b"Movimiento invalido\n")
-                continue
+                if not posicion.isdigit():
+                    cliente.sendall(b"Escribe un numero del 1 al 9\n")
+                    continue
 
-            # Realizar movimiento
-            tablero[posicion] = simbolo
-            turno = "O" if turno == "X" else "X"
+                posicion = int(posicion) - 1
 
-            enviar_a_todos(mostrar_tablero())
+                if posicion < 0 or posicion > 8:
+                    cliente.sendall(b"Posicion invalida\n")
+                    continue
+
+                if tablero[posicion] != " ":
+                    cliente.sendall(b"Casilla ocupada\n")
+                    continue
+
+                tablero[posicion] = simbolo
+
+                if turno == "X":
+                    turno = "O"
+                else:
+                    turno = "X"
+
+                enviar_a_todos(
+                    f"\nMovimiento de {simbolo}\n"
+                    + mostrar_tablero()
+                    + f"Turno de {turno}\n"
+                )
+
+        except:
+            break
 
 
 servidor = socket.socket()
 servidor.bind(("localhost", 8080))
 servidor.listen()
 
-print("Servidor Tic-Tac-Toe iniciado en puerto 8080")
+print("Servidor Tic-Tac-Toe iniciado")
+print("Esperando jugadores...\n")
 
 while True:
+
     cliente, direccion = servidor.accept()
 
     with lock:
-        jugadores.append(cliente)
+        clientes.append(cliente)
 
-        if len(jugadores) <= 2:
-            simbolo = "X" if len(jugadores) == 1 else "O"
-            threading.Thread(
-                target=atender,
-                args=(cliente, simbolo)
-            ).start()
+        # MATCHMAKING
+        if len(jugadores) < 2:
+
+            if len(jugadores) == 0:
+                simbolo = "X"
+            else:
+                simbolo = "O"
+
+            jugadores.append(cliente)
 
             print(f"Jugador {simbolo} conectado")
 
+            cliente.sendall(
+                f"JUGADOR {simbolo}\n{mostrar_tablero()}"
+                f"\nTurno de {turno}\n".encode()
+            )
+
+            threading.Thread(
+                target=atender_jugador,
+                args=(cliente, simbolo)
+            ).start()
+
+        # ESPECTADOR
         else:
-            cliente.sendall(b"Eres espectador\n")
-            cliente.sendall(mostrar_tablero().encode())
-            print("Espectador conectado")
 
+            print("Nuevo espectador conectado")
 
+            cliente.sendall(
+                f"ESPECTADOR\n{mostrar_tablero()}"
+                f"\nTurno de {turno}\n".encode()
+            )
 
