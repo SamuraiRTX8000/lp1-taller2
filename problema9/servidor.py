@@ -36,3 +36,25 @@ def elegir_backend():
 
     return None
 
+
+def atender(cliente):
+    backend = elegir_backend()
+
+    if backend is None:
+        cliente.send(b"No hay servidores disponibles")
+        cliente.close()
+        return
+
+    servidor_backend = socket.socket()
+    servidor_backend.connect(backend)
+
+    datos = cliente.recv(1024)
+
+    servidor_backend.send(datos)
+
+    respuesta = servidor_backend.recv(1024)
+
+    cliente.send(respuesta)
+
+    servidor_backend.close()
+    cliente.close()
