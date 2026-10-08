@@ -21,3 +21,18 @@ def health_check(backend):
         return True
     except:
         return False
+
+
+def elegir_backend():
+    global actual
+
+    for _ in range(len(backends)):
+        backend = backends[actual]
+
+        actual = (actual + 1) % len(backends)
+
+        if health_check(backend):
+            return backend
+
+    return None
+
