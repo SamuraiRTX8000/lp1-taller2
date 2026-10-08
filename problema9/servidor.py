@@ -58,3 +58,19 @@ def atender(cliente):
 
     servidor_backend.close()
     cliente.close()
+
+servidor = socket.socket()
+servidor.bind((HOST, 5000))
+servidor.listen()
+
+print("Servidor principal en puerto 5000")
+
+while True:
+    cliente, direccion = servidor.accept()
+
+    hilo = threading.Thread(
+        target=atender,
+        args=(cliente,)
+    )
+
+    hilo.start()
