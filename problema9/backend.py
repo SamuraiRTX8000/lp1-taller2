@@ -24,3 +24,14 @@ def atender(cliente):
 servidor = socket.socket()
 servidor.bind((HOST, PUERTO))
 servidor.listen()
+print(f"Backend funcionando en {PUERTO}")
+
+while True:
+    cliente, direccion = servidor.accept()
+
+    hilo = threading.Thread(
+        target=atender,
+        args=(cliente,)
+    )
+
+    hilo.start()
